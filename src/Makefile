@@ -6,12 +6,21 @@
 # Your platform. See PLATS for possible values.
 PLAT= none
 
+ifeq ($(PORT_TYPE), rt5350)
+CC=/opt/buildroot-gcc342/bin/mipsel-linux-gcc -std=c89
+AR=/opt/buildroot-gcc342/bin/mipsel-linux-ar cru
+DEFINED_VARIABLE= -D__RT5350__=1
+else
 CC= gcc -std=gnu99
-CFLAGS= -O2 -Wall -Wextra -DLUA_COMPAT_5_2 $(SYSCFLAGS) $(MYCFLAGS)
-LDFLAGS= $(SYSLDFLAGS) $(MYLDFLAGS)
-LIBS= -lm $(SYSLIBS) $(MYLIBS)
-
 AR= ar rcu
+ADDLIBS=-lreadline
+endif
+
+CFLAGS= -O2 -Wall -Wextra -DLUA_COMPAT_5_2 $(SYSCFLAGS) $(MYCFLAGS) $(DEFINED_VARIABLE)
+LDFLAGS= $(SYSLDFLAGS) $(MYLDFLAGS)
+LIBS= -lm $(SYSLIBS) $(MYLIBS) $(ADDLIBS)
+
+# AR=ar rcu
 RANLIB= ranlib
 RM= rm -f
 
@@ -107,7 +116,7 @@ freebsd:
 generic: $(ALL)
 
 linux:
-	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_LINUX" SYSLIBS="-Wl,-E -ldl -lreadline"
+	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_LINUX" SYSLIBS="-Wl,-E -ldl"
 
 macosx:
 	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_MACOSX" SYSLIBS="-lreadline" CC=cc
